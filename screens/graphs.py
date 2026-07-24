@@ -99,6 +99,8 @@ class GraphsScreen(MDScreen):
             "TWR"
         )
 
+        if not values:
+            values = [0]
 
         ax.set_ylim(
             0,
