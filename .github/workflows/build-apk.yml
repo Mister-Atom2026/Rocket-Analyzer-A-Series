@@ -32,16 +32,22 @@ jobs:
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
 
-      - name: Setup Android SDK
+      - name: Accept Android licenses
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+      - name: Install Android SDK packages
+        run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
-            "build-tools;35.0.0"
+            "build-tools;35.0.0" \
+            "build-tools;37.0.0"
+
+      - name: Verify Android SDK
+        run: |
+          ls $ANDROID_HOME/build-tools
+          ls $ANDROID_HOME/platforms
 
       - name: Install Buildozer
         run: |
@@ -57,15 +63,12 @@ jobs:
           sed -i 's/^title = .*/title = Rocket Analyzer A-Series/' buildozer.spec
           sed -i 's/^package.name = .*/package.name = rocketanalyzer/' buildozer.spec
           sed -i 's/^package.domain = .*/package.domain = org.misteratom/' buildozer.spec
-          sed -i 's/^requirements = .*/requirements = python3,kivy,kivymd,matplotlib/' buildozer.spec
+          sed -i 's/^requirements = .*/requirements = python3,kivy,kivymd,matplotlib,numpy/' buildozer.spec
           sed -i 's/^icon.filename = .*/icon.filename = icon.png/' buildozer.spec
-
-          echo "android.api = 35" >> buildozer.spec
-          echo "android.minapi = 21" >> buildozer.spec
 
       - name: Build APK
         run: |
-          buildozer android debug
+          yes | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
