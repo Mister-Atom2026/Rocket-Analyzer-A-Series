@@ -32,13 +32,13 @@ jobs:
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
 
-      - name: Accept Android SDK licenses
+      - name: Setup Android SDK
         run: |
-          yes | sdkmanager --licenses || true
+          echo "ANDROID_HOME=$ANDROID_HOME"
 
-      - name: Install Android SDK packages
-        run: |
-          sdkmanager \
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
@@ -59,6 +59,9 @@ jobs:
           sed -i 's/^package.domain = .*/package.domain = org.misteratom/' buildozer.spec
           sed -i 's/^requirements = .*/requirements = python3,kivy,kivymd,matplotlib/' buildozer.spec
           sed -i 's/^icon.filename = .*/icon.filename = icon.png/' buildozer.spec
+
+          echo "android.api = 35" >> buildozer.spec
+          echo "android.minapi = 21" >> buildozer.spec
 
       - name: Build APK
         run: |
